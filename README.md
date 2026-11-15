@@ -112,9 +112,6 @@ src/
   mock/regioes.json   dados de demonstração
 ```
 
-## Uso de IA
-
-O grupo usou o Claude para estruturar o código. Todos os integrantes revisaram e conseguem explicar cada parte.
 
 ## Vídeo
 
