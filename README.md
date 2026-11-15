@@ -1,56 +1,121 @@
-# Welcome to your Expo app 👋
+﻿# AlertaEnchente · App Mobile (CitizenTech)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Entrega de **Mobile Development & IoT** · FIAP · Engenharia de Software (3º ano) · Global Solution 2026.2
 
-## Get started
+App em **Expo (React Native + TypeScript + Expo Router)** que leva o AlertaEnchente ao celular do morador de área alagável.
 
-1. Install dependencies
+## Equipe
 
-   ```bash
-   npm install
-   ```
+| Integrante | RM |
+|---|---|
+| Arthur Silva | RM553320 |
+| Eduardo Escudero | RM556527 |
+| Leonardo Prado | RM556824 |
+| Davi Vieira | RM556798 |
+| Luca Monteiro | RM556906 |
 
-2. Start the app
+**Nome do grupo:** AlertaEnchente
 
-   ```bash
-   npx expo start
-   ```
+## Ficha da CitizenTech
 
-In the output, you'll find options to open the app in a
+| Campo | Preenchimento |
+|---|---|
+| Nome da CitizenTech | AlertaEnchente |
+| Cidade e bairro | São Paulo, Jardim Helena (Zona Leste) |
+| Cidadão beneficiado | Moradores e pequenos comerciantes de áreas alagáveis |
+| Problema, em uma frase | Moradores de áreas alagáveis recebem os avisos de enchente tarde demais para proteger pessoas e bens. |
+| Como funciona | O app mostra, com um farol verde, amarelo ou vermelho, o risco de enchente na região do morador, diz o que fazer em linguagem simples e permite registrar problemas (rua alagada, bueiro entupido, córrego subindo) que ficam salvos no celular. |
+| O que cada parte faz | Mobile (este repositório): consulta e registro pelo celular. Cybersecurity: protege dados pessoais. Infraestrutura Linux: hospeda e monitora. Demais disciplinas: API, sensores e previsão de risco. |
+| Indicador de impacto | Tempo entre o aviso e o morador ler a orientação; número de ocorrências registradas por região |
+| ODS conectados | ODS 9, ODS 11 e ODS 13 |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Jornada principal do cidadão
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Abre o app e vê **na hora** o risco da sua região (farol + frase curta + o que fazer).
+2. Se vir um problema, abre **Registrar**, escolhe o tipo, diz onde é e salva.
+3. Em **Histórico** confere (e apaga, se quiser) o que já registrou.
 
-## Get a fresh project
+## Telas
 
-When you're ready, run:
+| Tela | Rota | O que faz |
+|---|---|---|
+| Risco | `app/(tabs)/index.tsx` | Farol da região escolhida, orientação, nível do córrego, troca de região, puxar para atualizar |
+| Detalhes da região | `app/regiao/[id].tsx` | Cotas de atenção e perigo, orientação e telefones úteis (199, 193, 192) |
+| Registrar | `app/(tabs)/registrar.tsx` | Formulário em 3 passos com validação |
+| Histórico | `app/(tabs)/historico.tsx` | Lista salva no SQLite, com confirmação antes de apagar |
+
+Navegação com **Expo Router**: abas (Risco, Registrar, Histórico) e uma tela empilhada de detalhes.
+
+## Consumo de dados (API ou mock)
+
+`src/api.ts` busca `GET {EXPO_PUBLIC_API_URL}/regioes`. Se a variável não existir ou a rede falhar, usa o mock `src/mock/regioes.json` (o app continua funcionando offline) e avisa na tela de onde vieram os dados. O formato esperado da API é o mesmo do mock.
+
+Regra do farol (`src/risco.ts`): **verde** abaixo da cota de atenção, **amarelo** entre atenção e perigo, **vermelho** acima da cota de perigo.
+
+## Banco de dados (SQLite local)
+
+`src/db.ts` usa `expo-sqlite` com duas tabelas:
+
+- `ocorrencias(id, tipo, local, descricao, criado_em)`: CRUD de registros do cidadão (criar, listar, apagar);
+- `preferencias(chave, valor)`: lembra a região escolhida, mesmo depois de fechar o app.
+
+## Acessibilidade
+
+- Fonte base de 18 px e títulos grandes; botões com no mínimo 56 px de altura.
+- O estado do farol vai em **texto** (TRANQUILO, ATENÇÃO, PERIGO), não só em cor.
+- Contraste alto (texto escuro sobre fundo claro) e `accessibilityLabel`, `accessibilityRole`, `accessibilityState` e `accessibilityHint` nos controles, para leitores de tela (TalkBack e VoiceOver).
+- Mensagens de erro e de sucesso com `accessibilityLiveRegion`.
+- Linguagem simples, sem termos técnicos, pensando em um cidadão de 60 anos.
+
+## Como rodar
+
+Pré-requisitos: Node 20+ e o app **Expo Go** no celular (Android ou iPhone).
 
 ```bash
-npm run reset-project
+# 1. criar o projeto base (já vem com TypeScript e Expo Router)
+npx create-expo-app@latest alerta-enchente
+cd alerta-enchente
+
+# 2. instalar o banco local
+npx expo install expo-sqlite
+
+# 3. trocar o código do template pelo deste repositório
+rm -rf app components constants hooks scripts
+#    copie as pastas  app/  e  src/  deste repositório para dentro de alerta-enchente/
+
+# 4. rodar
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Leia o QR code com o Expo Go (Android) ou com a câmera (iPhone). Celular e computador devem estar na mesma rede Wi-Fi. Se a rede bloquear, use `npx expo start --tunnel`.
 
-### Other setup steps
+Para usar uma API real: `EXPO_PUBLIC_API_URL=http://SEU-IP:8080 npx expo start`.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Prints das telas
 
-## Learn more
+| Risco | Detalhes | Registrar | Histórico |
+|---|---|---|---|
+| ![Risco](docs/tela-risco.jpg) | ![Detalhes](docs/tela-detalhes.jpg) | ![Registrar](docs/tela-registrar.jpg) | ![Histórico](docs/tela-historico.jpg) |
 
-To learn more about developing your project with Expo, look at the following resources:
+## Estrutura
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+app/                  rotas (Expo Router)
+  _layout.tsx         pilha principal
+  (tabs)/             abas: index, registrar, historico
+  regiao/[id].tsx     detalhes da região
+src/
+  api.ts              API com fallback para mock
+  db.ts               SQLite (ocorrências e preferências)
+  risco.ts            regra do farol e formatação
+  components/         Farol, Botao
+  mock/regioes.json   dados de demonstração
+```
 
-## Join the community
+## Uso de IA
 
-Join our community of developers creating universal apps.
+O grupo usou o Claude para estruturar o código. Todos os integrantes revisaram e conseguem explicar cada parte.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Vídeo
+
+https://youtube.com/shorts/MHAJQhTQRsw
